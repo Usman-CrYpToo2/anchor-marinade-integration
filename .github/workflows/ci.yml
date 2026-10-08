@@ -88,5 +88,5 @@ jobs:
         if: failure()
         run: |
           annotate() { sed 's/%/%25/g' | while IFS= read -r line; do echo "::error title=$1::$line"; done; }
-          grep -E "passing|failing|Error|[0-9]+\) " test.log | head -30 | annotate "test output"
+          grep -vE "^\s*$|^\s+at " test.log | tail -45 | annotate "test output"
           tail -15 .anchor/test-ledger/test-ledger-log.txt 2>/dev/null | annotate "validator log"
