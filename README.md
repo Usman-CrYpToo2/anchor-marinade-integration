@@ -73,8 +73,9 @@ balances and account state, not just transaction success:
 | Claim | Rejected before the ticket matures, with no SOL moved |
 | Input validation | Zero amount, excess mSOL and a reused ticket ID are rejected |
 
-CI runs `cargo fmt`, `clippy -D warnings`, Prettier, and the full Anchor suite
-against the mainnet fork on every push.
+CI runs `cargo fmt`, `clippy -D warnings` and Prettier on every push. The
+Anchor suite needs a Solana toolchain and mainnet-beta access, so it runs
+locally with `anchor test`.
 
 ## Repository structure
 

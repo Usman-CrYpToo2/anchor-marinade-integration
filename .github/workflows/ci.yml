@@ -4,10 +4,6 @@ on:
   push:
   pull_request:
 
-env:
-  SOLANA_VERSION: v2.1.21
-  ANCHOR_VERSION: 0.31.1
-
 jobs:
   lint:
     name: Lint
@@ -35,58 +31,3 @@ jobs:
       - name: TypeScript format
         run: yarn lint
 
-  test:
-    name: Anchor test (mainnet fork)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: dtolnay/rust-toolchain@stable
-
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: yarn
-
-      - name: Cache Solana and Anchor
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.local/share/solana
-            ~/.cargo/bin/anchor
-          key: solana-${{ env.SOLANA_VERSION }}-anchor-${{ env.ANCHOR_VERSION }}
-
-      - name: Install Solana
-        run: |
-          if [ ! -x ~/.local/share/solana/install/active_release/bin/solana ]; then
-            sh -c "$(curl -sSfL https://release.anza.xyz/${SOLANA_VERSION}/install)"
-          fi
-          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
-
-      - name: Install Anchor
-        run: command -v anchor || cargo install anchor-cli --version "$ANCHOR_VERSION" --locked
-
-      - run: yarn install --frozen-lockfile
-
-      - name: Create test wallet
-        run: solana-keygen new --no-bip39-passphrase --silent --outfile ~/.config/solana/id.json
-
-      - name: Build
-        # A fresh checkout has no program keypair; sync the declared ID to the
-        # one generated for this run so the local deployment matches.
-        run: |
-          anchor build
-          anchor keys sync
-          anchor build
-
-      - name: Test
-        run: |
-          set -o pipefail
-          anchor test --skip-build 2>&1 | tee test.log
-
-      - name: Annotate failures
-        if: failure()
-        run: |
-          annotate() { sed 's/%/%25/g' | while IFS= read -r line; do echo "::error title=$1::$line"; done; }
-          grep -vE "^\s*$|^\s+at " test.log | tail -45 | annotate "test output"
-          tail -15 .anchor/test-ledger/test-ledger-log.txt 2>/dev/null | annotate "validator log"
