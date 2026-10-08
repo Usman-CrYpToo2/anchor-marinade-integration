@@ -1,5 +1,7 @@
 {
-  "license": "ISC",
+  "name": "anchor-marinade-integration",
+  "private": true,
+  "license": "MIT",
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"

@@ -5,15 +5,44 @@ package_manager = "yarn"
 resolution = true
 skip-lint = false
 
-[programs.d]
-drox_project = "Bfjb9g895pAyGfuFGgkf1JcUzDeKdxYk2sDJC76RZ89r"
+[programs.localnet]
+marinade_integration = "Bfjb9g895pAyGfuFGgkf1JcUzDeKdxYk2sDJC76RZ89r"
 
-[registry]
-url = "https://api.apr.dev"
+[programs.devnet]
+marinade_integration = "Bfjb9g895pAyGfuFGgkf1JcUzDeKdxYk2sDJC76RZ89r"
 
 [provider]
-cluster = "Devnet"
+cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+[test]
+startup_wait = 30000
+
+# The local validator clones Marinade's program and the accounts these
+# instructions touch from mainnet-beta, so tests run against real state.
+[test.validator]
+url = "https://api.mainnet-beta.solana.com"
+
+[[test.validator.clone]]
+address = "MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD" # Marinade program
+
+[[test.validator.clone]]
+address = "8szGkuLTAux9XMgZ2vtY39jVSowEcpBfFfD8hXSEqdGC" # state
+
+[[test.validator.clone]]
+address = "mSoLzYCxHdYgdzU16g5QSh3i5K3z3KZK7ytfqcJm7So" # mSOL mint
+
+[[test.validator.clone]]
+address = "UefNb6z6yvArqe4cJHTXCqStRsKmWhGxnZzuHbikP5Q" # liquidity pool SOL leg
+
+[[test.validator.clone]]
+address = "7GgPYjS5Dza89wV6FpZ23kUJRG5vbQ1GM25ezspYFSoE" # liquidity pool mSOL leg
+
+[[test.validator.clone]]
+address = "Du3Ysj1wKbxPKkuPPnvzQLQh8oMSVifs3jGZjJWXFmHN" # reserve
+
+[[test.validator.clone]]
+address = "8ZUcztoAEhpAeC2ixWewJKQJsSUGYSGPVAjkhDJYf5Gd" # treasury mSOL account

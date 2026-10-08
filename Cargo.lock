@@ -700,15 +700,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "drox_project"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
- "anchor-spl",
- "marinade-cpi",
-]
-
-[[package]]
 name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -976,6 +967,15 @@ checksum = "f4100dcf83b8af5eabda86381749f8e6f417bd3239e60e37b45c440d2cbae5e7"
 dependencies = [
  "anchor-gen",
  "anchor-lang",
+]
+
+[[package]]
+name = "marinade_integration"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+ "anchor-spl",
+ "marinade-cpi",
 ]
 
 [[package]]

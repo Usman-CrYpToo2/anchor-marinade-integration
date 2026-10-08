@@ -1,12 +1,13 @@
 [package]
-name = "drox_project"
+name = "marinade_integration"
 version = "0.1.0"
-description = "Created with Anchor"
+description = "Anchor program integrating Marinade Finance liquid staking via CPI"
 edition = "2021"
+license = "MIT"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "drox_project"
+name = "marinade_integration"
 
 [features]
 default = []
@@ -15,7 +16,6 @@ no-entrypoint = []
 no-idl = []
 no-log-ix-name = []
 idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
-
 
 [dependencies]
 anchor-lang = { version = "0.31.1", features = ["init-if-needed"] }

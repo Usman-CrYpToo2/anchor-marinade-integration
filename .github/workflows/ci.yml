@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  SOLANA_VERSION: v2.1.21
+  ANCHOR_VERSION: 0.31.1
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: yarn
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Rust format
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: TypeScript format
+        run: yarn lint
+
+  test:
+    name: Anchor test (mainnet fork)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Cache Solana and Anchor
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/solana
+            ~/.cargo/bin/anchor
+          key: solana-${{ env.SOLANA_VERSION }}-anchor-${{ env.ANCHOR_VERSION }}
+
+      - name: Install Solana
+        run: |
+          if [ ! -x ~/.local/share/solana/install/active_release/bin/solana ]; then
+            sh -c "$(curl -sSfL https://release.anza.xyz/${SOLANA_VERSION}/install)"
+          fi
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+
+      - name: Install Anchor
+        run: command -v anchor || cargo install anchor-cli --version "$ANCHOR_VERSION" --locked
+
+      - run: yarn install --frozen-lockfile
+
+      - name: Create test wallet
+        run: solana-keygen new --no-bip39-passphrase --silent --outfile ~/.config/solana/id.json
+
+      - name: Build
+        # A fresh checkout has no program keypair; sync the declared ID to the
+        # one generated for this run so the local deployment matches.
+        run: |
+          anchor build
+          anchor keys sync
+          anchor build
+
+      - name: Test
+        run: anchor test --skip-build
